@@ -37,6 +37,7 @@ define('WHITE', "\033[1;37m");
 $limit  = 250;
 $offset = 0;
 $apiurl = "https://www.worldcommunitygrid.org/api/members/$wcgUser/results?code=$wcgVerificationCode&limit=$limit";
+$startDate = date("Y-m-d_H-i-s");
 
 $i = -1;
 
@@ -50,7 +51,7 @@ do {
 	$results_raw = file_get_contents($url);
 
 	echo YELLOW."Got ".LIGHT_BLUE.strlen($results_raw).YELLOW." Byte".COLORRESET_NEWLINE;
-	file_put_contents("/home/results_raw/".date("Y-m-d_H-i-s")."_".sprintf("%03d",$i).".json",$results_raw);
+	file_put_contents("/home/results_raw/".$startDate."_".sprintf("%03d",$i).".json",$results_raw);
 	if($results_raw === false) {
 		echo LIGHT_RED." ERROR GETTING RESULT (=== FALSE)".COLORRESET_NEWLINE;
 		sleep(30);
