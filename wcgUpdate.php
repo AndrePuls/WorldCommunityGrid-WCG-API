@@ -83,6 +83,8 @@ echo LIGHT_GREEN."\n\nRECEIVE DONE!\n".COLORRESET_NEWLINE;
 $array_result = array_reverse($array_result);
 $resultsTotal = count($array_result);
 $totalResults = 0;
+$newResults   = 0;
+$updResults   = 0;
 
 foreach($array_result as $result) {
 	$totalResults++;
@@ -109,8 +111,8 @@ foreach($array_result as $result) {
 	if($countResultRows === 0) {
 		$result["LastChange"] = date("Y-m-d H:i:s");
 		$ArrayToDB = array('table'=>'resultStatus','rows'=>$result);
-		
-	echo WHITE.BACK_GREEN."NEW".BACK_BLACK.YELLOW." Returned:".LIGHT_CYAN.func_SQLInsertArray($ArrayToDB).COLORRESET_NEWLINE."\n";
+		$newResults++;
+		echo WHITE.BACK_GREEN."NEW #$newResults".BACK_BLACK.YELLOW." Returned:".LIGHT_CYAN.func_SQLInsertArray($ArrayToDB).COLORRESET_NEWLINE."\n";
 	}
 
 	if($countResultRows === 1) {
@@ -136,7 +138,8 @@ foreach($array_result as $result) {
 		if($change === true) {
 			$ArrayToDBUpdate['rows']["LastChange"] = date("Y-m-d H:i:s");
 			$ret = func_SQLUpdateArray($ArrayToDBUpdate);
-			echo YELLOW."UPD  - Returned:".LIGHT_CYAN.$ret.COLORRESET_NEWLINE;
+			$updResults++;
+			echo YELLOW."UPD #$updResults - Returned:".LIGHT_CYAN.$ret.COLORRESET_NEWLINE;
 			sleep(1);
 		} else {
 			echo LIGHT_GREEN."NO UPD".COLORRESET_NEWLINE;	
@@ -144,6 +147,10 @@ foreach($array_result as $result) {
 	}
 	echo "---------------------------------------------\n";
 }
+
+echo LIGHT_GREEN."Fetch Done!".COLORRESET_NEWLINE;
+echo YELLOW."New:".LIGHT_CYAN.$newResults.COLORRESET_NEWLINE;
+echo YELLOW."Upd:".LIGHT_CYAN.$updResults.COLORRESET_NEWLINE;
 
 sleep(5);
 
