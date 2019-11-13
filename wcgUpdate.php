@@ -45,7 +45,7 @@ do {
 	$url = $apiurl."&offset=".($i * $limit );
 
 	echo YELLOW."URL:".LIGHT_BLUE.$url.COLORRESET_NEWLINE;
-	func_wait(5);
+	sleep(5);
 
 	$results_raw = file_get_contents($url);
 
@@ -53,14 +53,14 @@ do {
 	file_put_contents("/home/results_raw/".date("Y-m-d_H-i-s")."_".sprintf("%03d",$i).".json",$results_raw);
 	if($results_raw === false) {
 		echo LIGHT_RED." ERROR GETTING RESULT (=== FALSE)".COLORRESET_NEWLINE;
-		func_wait(30);
+		sleep(30);
 		exit;
 	}
 
 	$results = json_decode($results_raw,true);
 	if(JSON_LAST_ERROR() !== 0) {
 		echo LIGHT_RED." JSON-ERROR:".JSON_LAST_ERROR().COLORRESET_NEWLINE;
-		func_wait(30);
+		sleep(30);
 		exit;
 	}
 
@@ -136,7 +136,7 @@ foreach($array_result as $result) {
 			$ArrayToDBUpdate['rows']["LastChange"] = date("Y-m-d H:i:s");
 			$ret = func_SQLUpdateArray($ArrayToDBUpdate);
 			echo YELLOW."UPD  - Returned:".LIGHT_CYAN.$ret.COLORRESET_NEWLINE;
-			func_wait(1);
+			sleep(1);
 		} else {
 			echo LIGHT_GREEN."NO UPD".COLORRESET_NEWLINE;	
 		}
@@ -144,7 +144,7 @@ foreach($array_result as $result) {
 	echo "---------------------------------------------\n";
 }
 
-func_wait(5);
+sleep(5);
 
 echo func_genReport();
 
@@ -241,42 +241,13 @@ function func_secToTime($sec) {
 	return $ret.sprintf("%02d",floor(($sec % 3600) / 60)).':'.sprintf("%02d",($sec % 60));
 }
 
-function func_wait($secs,$preText="Wait:") {
-	$cc = true;
-	if($preText == "q") { sleep($secs); return; }
-	if(php_sapi_name() === 'cli') {
-		$fill = strlen(floor($secs / 3600));
-		$endUnix=(time() + $secs);
-		$stdin = fopen("php://stdin", "r");
-		system("stty -icanon -echo");
-		while ($secs > 0) {
-			$secs = max(0,($endUnix - time()));
-			echo CLEARLINE.LIGHT_PURPLE.'  '.LIGHT_CYAN.$preText.' '.sprintf("%02d",floor($secs / 60)).":".sprintf("%02d",($secs % 60)).COLORRESET."\r".COLORRESET;
-			$r = array($stdin); $w = null; $e = null;
-			stream_select($r, $w, $e, 1, 25 * 1000);
-			if ($r) {
-				$c = ord(fgetc($stdin));
-				$cc = CHR($c);
-				if($cc == "Q") { exit; }
-			}
-		}
-		system('stty 6d02:5:4bf:8a3b:3:1c:7f:15:4:0:1:ff:11:13:1a:ff:12:f:17:16:ff:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0');
-		echo COLORRESET;
-		echo "\r\033[K";
-	} else {
-		echo "Sleeping $secs...";
-		sleep($secs);
-	}
-	return $cc;
-}
-
 function func_SQLSelect($sql) {
 	$response = $GLOBALS['mysqli']->query($sql);
 	if($response === false) {
 		echo LIGHT_RED."SQLSelect: ERROR:".$GLOBALS['mysqli']->error."\n".$sql.COLORRESET_NEWLINE;
 		file_put_contents($GLOBALS['logFile']."SQLSelectERROR",$sql."; # Error:".$GLOBALS['mysqli']->error."\n",FILE_APPEND);
 		func_out("SQLSelect: ERROR: ".$GLOBALS['mysqli']->error." - ".$sql);
-		func_wait(3600);
+		sleep(10);
 	}
 	RETURN $response;
 }
@@ -307,7 +278,7 @@ function func_SQLInsertArray($params) {
 		$Id = 0;
 		$logString = $sqlInsert."; # Error:".$GLOBALS['mysqli']->error;
 		echo $logString."\nResponse:"; var_dump($response);
-		echo LIGHT_RED." ERROR MYSQL INSERT!!! \n".COLORRESET_NEWLINE; func_wait(3600);
+		echo LIGHT_RED." ERROR MYSQL INSERT!!! \n".COLORRESET_NEWLINE;
 		file_put_contents($GLOBALS['logFileDir'].$errorFile,$logString."\n",FILE_APPEND);
 		RETURN $Id;
 	}
